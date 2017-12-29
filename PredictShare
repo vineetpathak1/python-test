@@ -1,0 +1,71 @@
+def decision(prices):
+
+    toBuy = True
+    last_5_days = prices[-5:]
+    average = sum(last_5_days) / len(last_5_days)
+
+    if last_5_days[-1] > 1.2 * average:
+        toBuy = True
+    else :
+        toBuy = False
+
+
+
+
+    return toBuy
+
+
+def printTransactions(m, k, d, name, owned, prices):
+
+    # print m, k, d, name, owned, prices
+
+    # print k
+
+    dummyM = m
+
+    counter = 0
+
+    for j in range(k):
+        toBuy = decision(prices[j])
+        if  toBuy:
+            quantity = int(dummyM / prices[j][-1])
+            if quantity > 1:
+                quantity = 1
+                dummyM = dummyM - quantity * prices[j][-1]
+                counter = counter + 1
+        else:
+            quantity = owned[j]
+            if quantity > 0:
+                counter = counter + 1
+
+    print counter
+
+    for j in range(k):
+        toBuy = decision(prices[j])
+        if  toBuy:
+            quantity = int(m / prices[j][-1])
+            if quantity > 1:
+                quantity = 1
+                print name[j] , "BUY", quantity
+                m = m - quantity * prices[j][-1]
+        else:
+            quantity = owned[j]
+            if quantity > 0:
+                print name[j] , "SELL", quantity
+
+
+if __name__ == '__main__':
+    m, k, d = [float(i) for i in raw_input().strip().split()]
+    k = int(k)
+    d = int(d)
+    names = []
+    owned = []
+    prices = []
+    for data in range(k):
+        temp = raw_input().strip().split()
+        names.append(temp[0])
+        owned.append(int(temp[1]))
+        prices.append([float(i) for i in temp[2:7]])
+
+    printTransactions(m, k, d, names, owned, prices)
+
