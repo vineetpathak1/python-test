@@ -11,7 +11,7 @@ else :
     life =  timeCharged * 2
 
 
-rounded_life = "%.4f" % life
+rounded_life = "%.3f" % life
 
 print life
 
