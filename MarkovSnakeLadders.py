@@ -135,32 +135,3 @@ for i in range(leng):
      print resultList[input_list[i]]
 
 
-
-#  Following code works correctly. However, not performance efficinet if number of inouts are high as the calculations are duplicated. Hence, plan to optimize
-# for i in range(leng):
-#     number_input = int(raw_input())
-#
-#     sum = 0
-#
-#     # number_input = 1000000
-#     for i in range (5, number_input +1):
-#         f = int(i)/ e
-#         max_divisor = int(round(f))
-#         numerator_factor = prime_factors(i)
-#         denominator_factor = prime_factors(max_divisor)
-#         IfTerminate = if_terminating(numerator_factor,denominator_factor)
-#
-#         if IfTerminate:
-#             incremental =  (-1) * i
-#         else :
-#             incremental = i
-#
-#         sum = int(sum) + incremental
-#
-#         # print i, max_divisor, numerator_factor, denominator_factor, IfTerminate, sum
-#
-#     print sum
-
-
-# number_input = int(raw_input())
-
