@@ -1,0 +1,10 @@
+Pearson Correlation Results
+---------------------------
+Correlation coefficient (r): 0.938
+95% CI: [0.873, 0.970]
+R-squared: 0.880
+p-value: 0.0000
+Sample size: 30
+
+Interpretation:
+The relationship between running_speed and joint_pronation was strong, significant and positive (r = 0.938 [95% CI 0.873 to 0.970], P=0.000).

@@ -1,0 +1,10 @@
+Paired T-Test Results
+---------------------
+t-statistic: -13.275
+p-value: 0.0000
+Before mean: 76.96
+After mean: 81.65
+Sample size: n=25
+
+Interpretation:
+The difference between paired measurements was significant (t = -13.275, P=0.000).

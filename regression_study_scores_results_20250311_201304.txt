@@ -1,0 +1,30 @@
+Linear Regression Results
+-------------------------
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             test_score   R-squared:                       0.829
+Model:                            OLS   Adj. R-squared:                  0.826
+Method:                 Least Squares   F-statistic:                     233.1
+Date:                Tue, 11 Mar 2025   Prob (F-statistic):           4.73e-20
+Time:                        20:13:04   Log-Likelihood:                -156.63
+No. Observations:                  50   AIC:                             317.3
+Df Residuals:                      48   BIC:                             321.1
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+===============================================================================
+                  coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------
+const          60.9418      2.167     28.129      0.000      56.586      65.298
+study_hours     4.9343      0.323     15.268      0.000       4.285       5.584
+==============================================================================
+Omnibus:                        2.185   Durbin-Watson:                   1.883
+Prob(Omnibus):                  0.335   Jarque-Bera (JB):                1.797
+Skew:                           0.463   Prob(JB):                        0.407
+Kurtosis:                       2.941   Cond. No.                         18.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+Interpretation:
+R-squared: 0.829 indicates that 82.9% of the variance in test_score can be explained by study_hours.
