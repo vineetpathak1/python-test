@@ -2,7 +2,8 @@ Mann-Whitney U Test Results
 --------------------------
 U-statistic: 331.000
 p-value: 0.7269
+Effect size (r): 46.810 (large effect)
 Group medians: treatment=1.48, control=1.18
 
 Interpretation:
-The difference between groups was not significant (U = 331.000, P=0.727).
+The difference between groups was not significant with a large effect size (U = 331.000, r = 46.810, P=0.727).

@@ -1,0 +1,12 @@
+Friedman Test Results
+---------------------
+Chi-square statistic: 3.920
+p-value: 0.1409
+
+Medians:
+time1: 10.17
+time2: 11.05
+time3: 11.34
+
+Interpretation:
+The difference between repeated measurements was not significant (Chi-square = 3.920, P=0.141).

@@ -2,8 +2,9 @@ Wilcoxon Signed-rank Test Results
 --------------------------------
 W-statistic: 0.000
 p-value: 0.0000
+Effect size (r): 0.000 (trivial effect)
 Before median: 1.41
 After median: 1.72
 
 Interpretation:
-The difference between paired measurements was significant (W = 0.000, P=0.000).
+The difference between paired measurements was significant with a trivial effect size (W = 0.000, r = 0.000, P=0.000).

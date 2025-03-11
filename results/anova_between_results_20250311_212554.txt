@@ -1,0 +1,17 @@
+One-way ANOVA Results
+---------------------
+F-statistic: 13.013
+p-value: 0.0000
+
+Post-hoc Tukey HSD Test:
+Multiple Comparison of Means - Tukey HSD, FWER=0.05 
+====================================================
+group1 group2 meandiff p-adj   lower   upper  reject
+----------------------------------------------------
+     A      B   9.4174  0.012  1.7784 17.0563   True
+     A      C  16.1182    0.0  8.4793 23.7572   True
+     B      C   6.7008 0.0966 -0.9381 14.3398  False
+----------------------------------------------------
+
+Interpretation:
+The difference between groups was significant (F = 13.013, P=0.000).

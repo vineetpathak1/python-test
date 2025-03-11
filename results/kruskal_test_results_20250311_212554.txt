@@ -1,0 +1,12 @@
+Kruskal-Wallis H Test Results
+-----------------------------
+H-statistic: 5.391
+p-value: 0.0675
+
+Group medians:
+A: 1.23
+B: 1.08
+C: 2.40
+
+Interpretation:
+The difference between groups was not significant (H = 5.391, P=0.067).

@@ -1,0 +1,11 @@
+Independent T-Test Results
+--------------------------
+t-statistic: 2.208
+p-value: 0.0312
+Effect size (Cohen's d): 0.570 (moderate effect)
+Group 1 (treatment) mean: 75.82
+Group 2 (control) mean: 69.11
+Sample sizes: n1=30, n2=30
+
+Interpretation:
+The difference between groups was significant with a moderate effect size (t = 2.208, d = 0.570, P=0.031).
