@@ -1,0 +1,8 @@
+Mann-Whitney U Test Results
+--------------------------
+U-statistic: 331.000
+p-value: 0.7269
+Group medians: treatment=1.48, control=1.18
+
+Interpretation:
+The difference between groups was not significant (U = 331.000, P=0.727).

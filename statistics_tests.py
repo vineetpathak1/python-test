@@ -328,10 +328,30 @@ def process_file(file_path):
     
     return "Unsupported test type"
 
+def process_folder(folder_path):
+    """Process all CSV files in the given folder"""
+    folder = Path(folder_path)
+    if not folder.is_dir():
+        return "Error: Not a valid folder path"
+    
+    results = []
+    for csv_file in folder.glob("*.csv"):
+        try:
+            result = process_file(csv_file)
+            results.append(f"Results for {csv_file.name}:\n{result}\n")
+        except Exception as e:
+            results.append(f"Error processing {csv_file.name}: {str(e)}\n")
+    
+    return "\n".join(results) if results else "No CSV files found in the folder"
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
-        result = process_file(sys.argv[1])
+        path = Path(sys.argv[1])
+        if path.is_dir():
+            result = process_folder(path)
+        else:
+            result = process_file(path)
         print(result)
     else:
-        print("Please provide a CSV file path")
+        print("Please provide a CSV file path or folder path")
