@@ -1,0 +1,9 @@
+pandas
+numpy
+scipy
+statsmodels
+pathlib
+langchain
+transformers
+torch
+sentence-transformers

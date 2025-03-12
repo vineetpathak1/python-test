@@ -6,6 +6,11 @@ from pathlib import Path
 from datetime import datetime
 import warnings
 import os
+from langchain import LLMChain
+from langchain.llms import HuggingFacePipeline
+from langchain.prompts import PromptTemplate
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+import torch
 
 # Define default results folder
 DEFAULT_RESULTS_FOLDER = Path("c:/Vineet_Learning/python-test/results")
@@ -368,31 +373,114 @@ def friedman(file_path, output_folder=None):
     write_results(Path(file_path), results, output_folder)
     return results
 
-def process_file(file_path):
-    """Process file based on filename prefix"""
+def setup_llm():
+    """Setup the open source LLM for test selection"""
+    model_name = "facebook/opt-350m"  # You can use other models like GPT-J
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    
+    pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        max_new_tokens=512,
+        temperature=0.2
+    )
+    
+    llm = HuggingFacePipeline(pipeline=pipe)
+    return llm
+
+def analyze_data_characteristics(data):
+    """Analyze characteristics of the input data"""
+    characteristics = {
+        "num_columns": len(data.columns),
+        "num_rows": len(data),
+        "column_names": list(data.columns),
+        "has_groups": "group" in data.columns,
+        "is_paired": all(x in data.columns for x in ["before_treatment", "after_treatment"]),
+        "num_groups": len(data["group"].unique()) if "group" in data.columns else 0,
+        "is_normal": check_normality(data)[0]
+    }
+    return characteristics
+
+def select_statistical_test(problem_statement, data):
+    """Use LLM to select appropriate statistical test based on problem and data"""
+    llm = setup_llm()
+    
+    characteristics = analyze_data_characteristics(data)
+    
+    template = """
+    Given the following problem statement and data characteristics, determine the most appropriate statistical test:
+    
+    Problem Statement: {problem}
+    
+    Data Characteristics:
+    - Number of columns: {chars[num_columns]}
+    - Number of rows: {chars[num_rows]}
+    - Column names: {chars[column_names]}
+    - Has group variable: {chars[has_groups]}
+    - Is paired data: {chars[is_paired]}
+    - Number of groups: {chars[num_groups]}
+    - Data is normally distributed: {chars[is_normal]}
+    
+    Select one of the following tests:
+    - pearson_correlation
+    - spearman_correlation
+    - linear_regression
+    - independent_ttest
+    - paired_ttest
+    - mann_whitney
+    - wilcoxon
+    - oneway_anova
+    - kruskal_wallis
+    - friedman
+    
+    Return only the name of the test.
+    """
+    
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["problem", "chars"]
+    )
+    
+    chain = LLMChain(llm=llm, prompt=prompt)
+    result = chain.run(problem=problem_statement, chars=characteristics)
+    
+    return result.strip()
+
+def process_file(file_path, problem_statement=None):
+    """Process file based on automatic test selection or filename prefix"""
     file_path = Path(file_path)
-    file_name = file_path.name.lower()
+    data = pd.read_csv(file_path)
     
     test_functions = {
-        'pearson': pearson_correlation,
-        'spearman': spearman_correlation,
-        'regression': linear_regression,
-        'ttest_independent': independent_ttest,
-        'ttest_paired': paired_ttest,
-        'anova': oneway_anova,
-        'mannwhitney': mann_whitney,
+        'pearson_correlation': pearson_correlation,
+        'spearman_correlation': spearman_correlation,
+        'linear_regression': linear_regression,
+        'independent_ttest': independent_ttest,
+        'paired_ttest': paired_ttest,
+        'mann_whitney': mann_whitney,
         'wilcoxon': wilcoxon,
-        'kruskal': kruskal_wallis,
+        'oneway_anova': oneway_anova,
+        'kruskal_wallis': kruskal_wallis,
         'friedman': friedman
     }
     
+    if problem_statement:
+        # Use automatic test selection
+        test_name = select_statistical_test(problem_statement, data)
+        if test_name in test_functions:
+            return test_functions[test_name](file_path)
+    
+    # Fallback to filename-based selection
+    file_name = file_path.name.lower()
     for prefix, func in test_functions.items():
-        if file_name.startswith(prefix):
+        if file_name.startswith(prefix.split('_')[0]):
             return func(file_path)
     
     return "Unsupported test type"
 
-def process_folder(folder_path):
+def process_folder(folder_path, problem_statements=None):
     """Process all CSV files in the given folder"""
     folder = Path(folder_path)
     if not folder.is_dir():
@@ -401,7 +489,8 @@ def process_folder(folder_path):
     results = []
     for csv_file in folder.glob("*.csv"):
         try:
-            result = process_file(csv_file)
+            problem = problem_statements.get(csv_file.name) if problem_statements else None
+            result = process_file(csv_file, problem)
             results.append(f"Results for {csv_file.name}:\n{result}\n")
         except Exception as e:
             results.append(f"Error processing {csv_file.name}: {str(e)}\n")
