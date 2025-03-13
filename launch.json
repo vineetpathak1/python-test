@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug statistics_tests.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/statistics_tests.py",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "${workspaceFolder}/data/running_study.csv",
+                "what is the expected pronation if the running speed is 10"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTORCH_ENABLE_MPS_FALLBACK": "1",
+                "TF_ENABLE_ONEDNN_OPTS": "0",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}

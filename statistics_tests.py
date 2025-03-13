@@ -6,11 +6,15 @@ from pathlib import Path
 from datetime import datetime
 import warnings
 import os
-from langchain import LLMChain
-from langchain.llms import HuggingFacePipeline
+
+# Comment out AI/LLM related imports
+'''
+from langchain.chains import LLMChain
+from langchain_community.llms import HuggingFacePipeline
 from langchain.prompts import PromptTemplate
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
+'''
 
 # Define default results folder
 DEFAULT_RESULTS_FOLDER = Path("c:/Vineet_Learning/python-test/results")
@@ -115,8 +119,8 @@ def spearman_correlation(file_path, output_folder=None):
     write_results(Path(file_path), results, output_folder)
     return results
 
-def linear_regression(file_path, output_folder=None):
-    """Perform bivariate linear regression"""
+def linear_regression(file_path, output_folder=None, predict_x=None):
+    """Perform bivariate linear regression and optionally predict y for given x"""
     data = pd.read_csv(file_path)
     if len(data.columns) < 2:
         return "Error: Need at least 2 columns for regression"
@@ -129,13 +133,43 @@ def linear_regression(file_path, output_folder=None):
     y = data.iloc[:, 1]
     model = sm.OLS(y, X).fit()
     
+    # Make prediction if x value provided
+    prediction_text = ""
+    if predict_x is not None:
+        try:
+            # Create prediction array correctly
+            predict_x_float = float(predict_x)
+            X_new = np.array([[1, predict_x_float]])  # Add constant term (1) explicitly
+            
+            # Debug logging
+            print(f"Debug: Making prediction for x = {predict_x_float}")
+            print(f"Debug: X_new shape = {X_new.shape}")
+            print(f"Debug: Model params shape = {model.params.shape}")
+            
+            # Make prediction
+            predicted_y = model.predict(X_new)[0]
+            conf_int = model.get_prediction(X_new).conf_int()
+            
+            prediction_text = (
+                f"\nPrediction:\n"
+                f"For {data.columns[0]} = {predict_x}, "
+                f"predicted {data.columns[1]} = {predicted_y:.2f}\n"
+                f"95% Prediction Interval: "
+                f"{conf_int[0][0]:.2f} to {conf_int[0][1]:.2f}"
+            )
+        except Exception as e:
+            prediction_text = f"\nError making prediction: {str(e)}"
+            warnings.warn(f"Prediction failed: {str(e)}")
+    
     results = (
         f"Linear Regression Results\n"
         f"-------------------------\n"
+        f"Equation: {data.columns[1]} = {model.params[0]:.3f} + {model.params[1]:.3f}*{data.columns[0]}\n"
         f"{model.summary().as_text()}\n\n"
         f"Interpretation:\n"
         f"R-squared: {model.rsquared:.3f} indicates that {model.rsquared*100:.1f}% "
         f"of the variance in {data.columns[1]} can be explained by {data.columns[0]}."
+        f"{prediction_text}"
     )
     
     write_results(Path(file_path), results, output_folder)
@@ -373,114 +407,33 @@ def friedman(file_path, output_folder=None):
     write_results(Path(file_path), results, output_folder)
     return results
 
-def setup_llm():
-    """Setup the open source LLM for test selection"""
-    model_name = "facebook/opt-350m"  # You can use other models like GPT-J
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    
-    pipe = pipeline(
-        "text-generation",
-        model=model,
-        tokenizer=tokenizer,
-        max_new_tokens=512,
-        temperature=0.2
-    )
-    
-    llm = HuggingFacePipeline(pipeline=pipe)
-    return llm
-
-def analyze_data_characteristics(data):
-    """Analyze characteristics of the input data"""
-    characteristics = {
-        "num_columns": len(data.columns),
-        "num_rows": len(data),
-        "column_names": list(data.columns),
-        "has_groups": "group" in data.columns,
-        "is_paired": all(x in data.columns for x in ["before_treatment", "after_treatment"]),
-        "num_groups": len(data["group"].unique()) if "group" in data.columns else 0,
-        "is_normal": check_normality(data)[0]
-    }
-    return characteristics
-
-def select_statistical_test(problem_statement, data):
-    """Use LLM to select appropriate statistical test based on problem and data"""
-    llm = setup_llm()
-    
-    characteristics = analyze_data_characteristics(data)
-    
-    template = """
-    Given the following problem statement and data characteristics, determine the most appropriate statistical test:
-    
-    Problem Statement: {problem}
-    
-    Data Characteristics:
-    - Number of columns: {chars[num_columns]}
-    - Number of rows: {chars[num_rows]}
-    - Column names: {chars[column_names]}
-    - Has group variable: {chars[has_groups]}
-    - Is paired data: {chars[is_paired]}
-    - Number of groups: {chars[num_groups]}
-    - Data is normally distributed: {chars[is_normal]}
-    
-    Select one of the following tests:
-    - pearson_correlation
-    - spearman_correlation
-    - linear_regression
-    - independent_ttest
-    - paired_ttest
-    - mann_whitney
-    - wilcoxon
-    - oneway_anova
-    - kruskal_wallis
-    - friedman
-    
-    Return only the name of the test.
-    """
-    
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["problem", "chars"]
-    )
-    
-    chain = LLMChain(llm=llm, prompt=prompt)
-    result = chain.run(problem=problem_statement, chars=characteristics)
-    
-    return result.strip()
-
-def process_file(file_path, problem_statement=None):
-    """Process file based on automatic test selection or filename prefix"""
+def process_file(file_path):
+    """Process file based on filename prefix"""
     file_path = Path(file_path)
-    data = pd.read_csv(file_path)
     
     test_functions = {
-        'pearson_correlation': pearson_correlation,
-        'spearman_correlation': spearman_correlation,
-        'linear_regression': linear_regression,
-        'independent_ttest': independent_ttest,
-        'paired_ttest': paired_ttest,
-        'mann_whitney': mann_whitney,
+        'pearson': pearson_correlation,
+        'spearman': spearman_correlation,
+        'linear': linear_regression,
+        'independent': independent_ttest,
+        'paired': paired_ttest,
+        'mann': mann_whitney,
         'wilcoxon': wilcoxon,
-        'oneway_anova': oneway_anova,
-        'kruskal_wallis': kruskal_wallis,
+        'oneway': oneway_anova,
+        'kruskal': kruskal_wallis,
         'friedman': friedman
     }
     
-    if problem_statement:
-        # Use automatic test selection
-        test_name = select_statistical_test(problem_statement, data)
-        if test_name in test_functions:
-            return test_functions[test_name](file_path)
+    # Simple filename-based selection
+    file_prefix = file_path.name.lower().split('_')[0]
     
-    # Fallback to filename-based selection
-    file_name = file_path.name.lower()
     for prefix, func in test_functions.items():
-        if file_name.startswith(prefix.split('_')[0]):
+        if file_prefix.startswith(prefix):
             return func(file_path)
-    
-    return "Unsupported test type"
+            
+    return f"Skipping {file_path.name} - unsupported test type"
 
-def process_folder(folder_path, problem_statements=None):
+def process_folder(folder_path):
     """Process all CSV files in the given folder"""
     folder = Path(folder_path)
     if not folder.is_dir():
@@ -489,8 +442,7 @@ def process_folder(folder_path, problem_statements=None):
     results = []
     for csv_file in folder.glob("*.csv"):
         try:
-            problem = problem_statements.get(csv_file.name) if problem_statements else None
-            result = process_file(csv_file, problem)
+            result = process_file(csv_file)
             results.append(f"Results for {csv_file.name}:\n{result}\n")
         except Exception as e:
             results.append(f"Error processing {csv_file.name}: {str(e)}\n")
@@ -499,12 +451,18 @@ def process_folder(folder_path, problem_statements=None):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1:
-        path = Path(sys.argv[1])
-        if path.is_dir():
-            result = process_folder(path)
-        else:
-            result = process_file(path)
-        print(result)
+    import os
+    
+    if len(sys.argv) < 2:
+        print("Please provide a file or folder path")
+        sys.exit(1)
+        
+    path = Path(sys.argv[1])
+    if not path.is_absolute():
+        path = Path(os.getcwd()) / path
+        
+    if path.is_dir():
+        result = process_folder(path)
     else:
-        print("Please provide a CSV file path or folder path")
+        result = process_file(path)
+    print(result)

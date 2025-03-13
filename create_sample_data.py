@@ -29,7 +29,7 @@ def create_sample_data(data_folder):
         'test_score': np.random.uniform(60, 100, 50)
     })
     regression_data['test_score'] = regression_data['study_hours'] * 5 + np.random.normal(60, 5, 50)
-    regression_data.to_csv(os.path.join(data_folder, 'regression_study_scores.csv'), index=False)
+    regression_data.to_csv(os.path.join(data_folder, 'linear_study_scores.csv'), index=False)  # Changed from regression to linear
     
     # 4. Independent t-test Data
     group1 = np.random.normal(75, 10, 30)
@@ -38,7 +38,7 @@ def create_sample_data(data_folder):
         'scores': np.concatenate([group1, group2]),
         'group': ['treatment'] * 30 + ['control'] * 30
     })
-    ttest_data.to_csv(os.path.join(data_folder, 'ttest_independent.csv'), index=False)
+    ttest_data.to_csv(os.path.join(data_folder, 'independent_groups.csv'), index=False)  # Changed from ttest to independent
     
     # 5. Paired t-test Data
     before = np.random.normal(80, 15, 25)
@@ -47,7 +47,7 @@ def create_sample_data(data_folder):
         'before_treatment': before,
         'after_treatment': after
     })
-    paired_data.to_csv(os.path.join(data_folder, 'ttest_paired.csv'), index=False)
+    paired_data.to_csv(os.path.join(data_folder, 'paired_treatment.csv'), index=False)  # Changed from ttest to paired
     
     # 6. One-way ANOVA Data
     group_a = np.random.normal(70, 10, 20)
@@ -57,7 +57,7 @@ def create_sample_data(data_folder):
         'scores': np.concatenate([group_a, group_b, group_c]),
         'group': ['A'] * 20 + ['B'] * 20 + ['C'] * 20
     })
-    anova_data.to_csv(os.path.join(data_folder, 'anova_between.csv'), index=False)
+    anova_data.to_csv(os.path.join(data_folder, 'oneway_groups.csv'), index=False)  # Changed from anova to oneway
     
     # 7. Mann-Whitney U Data
     group1 = np.random.exponential(scale=2.0, size=25)  # Non-normal distribution
@@ -66,7 +66,7 @@ def create_sample_data(data_folder):
         'scores': np.concatenate([group1, group2]),
         'group': ['treatment'] * 25 + ['control'] * 25
     })
-    mannwhitney_data.to_csv(os.path.join(data_folder, 'mannwhitney_test.csv'), index=False)
+    mannwhitney_data.to_csv(os.path.join(data_folder, 'mann_groups.csv'), index=False)  # Simplified name
     
     # 8. Wilcoxon Signed-Rank Data
     before = np.random.exponential(scale=2.0, size=30)
@@ -75,7 +75,7 @@ def create_sample_data(data_folder):
         'before_treatment': before,
         'after_treatment': after
     })
-    wilcoxon_data.to_csv(os.path.join(data_folder, 'wilcoxon_test.csv'), index=False)
+    wilcoxon_data.to_csv(os.path.join(data_folder, 'wilcoxon_treatment.csv'), index=False)
     
     # 9. Kruskal-Wallis Data
     group_a = np.random.exponential(scale=1.0, size=20)
@@ -85,7 +85,7 @@ def create_sample_data(data_folder):
         'scores': np.concatenate([group_a, group_b, group_c]),
         'group': ['A'] * 20 + ['B'] * 20 + ['C'] * 20
     })
-    kruskal_data.to_csv(os.path.join(data_folder, 'kruskal_test.csv'), index=False)
+    kruskal_data.to_csv(os.path.join(data_folder, 'kruskal_groups.csv'), index=False)
     
     # 10. Friedman Test Data
     measurements = pd.DataFrame({
@@ -93,7 +93,7 @@ def create_sample_data(data_folder):
         'time2': np.random.normal(11, 2, 25),
         'time3': np.random.normal(12, 2, 25)
     })
-    measurements.to_csv(os.path.join(data_folder, 'friedman_test.csv'), index=False)
+    measurements.to_csv(os.path.join(data_folder, 'friedman_times.csv'), index=False)
     
     print(f"Sample data files have been created successfully in '{data_folder}'!")
 
